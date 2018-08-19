@@ -7,8 +7,27 @@
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+@import '~open-iconic/font/css/open-iconic-bootstrap';
 
 .navbar-laravel {
-  background-color: #fff;
+  background-color: $navi-bg;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+
+  .nav-item a.nav-link, a.navbar-brand {
+    color: #ffffff;
+  }
+
+
+}
+
+.body {
+  background: $body-bg;
+}
+
+.user-table {
+  margin-top: 40px;
+}
+
+.search-header {
+  cursor: pointer;
 }

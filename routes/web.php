@@ -11,6 +11,16 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Auth::routes();
+
+Route::get('/', 'HomeController@index')->name('home');
+
+Route::resources([
+    'sharedObjects' => 'SharedObjectController',
+    'reservations' => 'ReservationController'
+]);
+
+Route::post('/sharedObjects/{id}/addUser', 'SharedObjectController@addUser')->name('sharedObjects.addUser');
+Route::get('/sharedObjects/{id}/removeUser/{userId}', 'SharedObjectController@removeUser')->name('sharedObjects.removeUser');
+Route::get('/sharedObjects/{id}/reservation', 'ReservationController@create')->name('reservations.createFor');
+
