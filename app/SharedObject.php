@@ -81,4 +81,8 @@ class SharedObject extends Model
         }
         return false;
     }
+
+    public function getRelaventReservations(){
+        return $this->reservations()->where('deleted',false)->orderBy('date','asc')->get();
+    }
 }

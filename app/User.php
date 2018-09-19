@@ -30,7 +30,17 @@ class User extends Authenticatable
 
     public function sharedObjects()
     {
-        return $this->belongsToMany('App\SharedObject');
+        return $this->belongsToMany(SharedObject::class);
+    }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    public function templates()
+    {
+        return $this->hasMany(ReservationTemplate::class);
     }
 
     public function createdSharedObjects()
@@ -52,7 +62,7 @@ class User extends Authenticatable
         return $this->firstname . " " . $this->lastname;
     }
 
-    public function getReservationsMonth($month){
-
+    public function getRelaventReservations(){
+        return $this->reservations()->where('deleted',false)->orderBy('date','asc')->get();
     }
 }

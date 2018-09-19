@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Notification;
 use App\Reservation;
+use App\ReservationTemplate;
 use App\SharedObject;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ReservationController extends Controller
 {
@@ -28,6 +31,10 @@ class ReservationController extends Controller
     public function index()
     {
         //
+        $user = Auth::user();
+        $reservations = $user->reservations()->orderBy('date','desc')->orderBy('from','desc')->orderBy('to','desc')->get();
+        $templates = $user->templates()->orderBy('start_date','desc')->orderBy('end_date','desc')->get();
+        return view('reservations.index',compact(['reservations','templates']));
     }
 
     /**
@@ -48,8 +55,6 @@ class ReservationController extends Controller
             $sharedObject = SharedObject::find($id);
         }
 
-
-
         return view('reservations.create', compact(['sharedObject','sharedObjects']));
     }
 
@@ -61,60 +66,173 @@ class ReservationController extends Controller
      */
     public function store(Request $request)
     {
+        $frequencies = null;
+        $datebased = $request->input('reservation-is-date-based') == 'true'?true:false;
+        if($datebased){
+            $frequencies = ['monthly','yearly'];
+        }
+        else {
+            $frequencies = ['weekly','monthly','yearly'];
+        }
         $validatedData = $request->validate([
-            'shared_object_id' => 'required|Integer',
-            'reservation-type' => 'required|Integer',
-            'priority' => 'required|Integer',
-            'reservation-date' => 'required|date|after_or_equal:today',
-            'reservation-from' => 'required',
-            'reservation-to' => 'required',
-            'reason' => 'string|nullable|min:2|max:250'
-        ]);
+                'shared_object_id' => 'required|Integer',
+                'reservation-type' => 'required|Integer',
+                'priority' => 'required|Integer',
+                'reason' => 'string|nullable|min:2|max:250',
+                'reservation-date' => 'required|date|after_or_equal:today',
+                'reservation-from' => 'required',
+                'reservation-to' => 'required',
+                'reservation-is-date-based' => 'required_if:reservation-type,2',
+                'reservation-frequency' => [
+                    'required_if:reservation-is-date-based,false',
+                    Rule::in($frequencies)
+                ],
+                'reservation-days' => 'required_if:reservation-is-date-based,false',
+                'reservation-start-date' => 'required_if:reservation-type,2|nullable|date',
+                'reservation-end-date' => 'required_if:reservation-type,2|nullable|date',
+            ],
+            [
+                'shared_object_id.required' => 'No Shared Object',
+                'shared_object_id.integer' => 'No Shared Object',
+                'reservation-type.required' => 'No reservation type availbable',
+                'reservation-type.integer' => 'Not a real type',
+                'reservation-date.required' => 'No Date',
+                'reservation-date.date' => 'Not a date',
+                'reservation-date.after_or_equal' => 'Date in the past',
+                'reservation-from.required' => 'From time missing',
+                'reservation-to.required' => 'To time missing',
+                'reservation-is-date-based.required_if' => 'Required if type recurring',
+                'reservation-frequency.required_if' => 'Frequency is missing',
+                'reservation-frequency.in' => 'Not a valid frequency',
+                'reservation-days.required_if' => 'No days given, despite this not being a date based recurring reservation.',
+                'reservation-start-date.required_if' => 'No start date given, despite this being a recurring reservation.',
+                'reservation-start-date.date' => 'Start date given, is not a actual date.',
+                'reservation-end-date.required_if' => 'No end date given, despite this being a recurring reservation.',
+                'reservation-end-date.date' => 'End date given, is not a actual date.',
+            ]);
+
         //
-        $sharedObject = SharedObject::find($request->input('shared-object'));
+        $sharedObject = SharedObject::find($request->input('shared_object_id'));
         $user = Auth::user();
-        $type = $request->input('reservation-type');
+        $type = Reservation::checkValidType($request->input('reservation-type'));
         $date  = new Carbon($request->input('reservation-date'));
+        $priority = Reservation::checkValidPriority($request->input('priority'));
+        $from = Carbon::createFromTimeString($request->input('reservation-from'));
+        $to = Carbon::createFromTimeString($request->input('reservation-to'));
 
-        $reservation = new Reservation();
-        $reservation->type = Reservation::checkValidType($type);
-        $reservation->priority = Reservation::checkValidPriority($request->input('priority'));
-        $reservation->manuel = true;
-        $reservation->date = $date;
-        $reservation->from = $request->input('reservation-from');
-        $reservation->to = $request->input('reservation-to');
-        $reservation->reason = $request->input('reason');
-        $reservation->deleted = false;
-        $reservation->user()->associate($user);
-        $reservation->sharedObject()->associate($sharedObject);
+        if($type == Reservation::TYPE_REPEATING) {
+            $monday = false;
+            $tuesday = false;
+            $wednesday = false;
+            $thursday = false;
+            $friday = false;
+            $saturday = false;
+            $sunday = false;
+            $weekly = false;
+            $monthly = false;
+            $yearly = false;
 
-        if($reservation->type = Reservation::TYPE_REPEATING) {
+            switch ($request->input('reservation-frequency')) {
+                case 'weekly':
+                    if(!$datebased){
+                        $weekly = true;
+                    }
+                    break;
+                case 'monthly':
+                    $monthly = true;
+                    break;
+                case 'yearly':
+                    $yearly = true;
+                    break;
+                default:
+                    $yearly = true;
+                    break;
+            }
+
+            if(!$datebased){
+                foreach ($request->input('reservation-days') as $day) {
+                    switch ($day) {
+                        case 'monday':
+                            $monday = true;
+                            break;
+                        case 'tuesday':
+                            $tuesday = true;
+                            break;
+                        case 'wednesday':
+                            $wednesday = true;
+                            break;
+                        case 'thursday':
+                            $thursday = true;
+                            break;
+                        case 'friday':
+                            $friday = true;
+                            break;
+                        case 'saturday':
+                            $saturday = true;
+                            break;
+                        case 'sunday':
+                            $sunday = true;
+                            break;
+                    }
+                }
+            }
+
+
             $template = new ReservationTemplate();
             $template->date = $date->day;
             $template->month = $date->month;
-            $template->weekly_frequency = ($request->input('weekly_frequency')==1)? true : false;
-            $template->monthly_frequency = ($request->input('monthly_frequency')==1)?true : false;
-            $template->yearly_frequency = ($request->input('yearly_frequency')==1)? true : false;
-            $template->is_day_based = ($request->input('is_day_based')==1)? true : false;
-            $template->monday = ($request->input('monday')==1)? true : false;
-            $template->tueday = ($request->input('tueday')==1)? true : false;
-            $template->wednesday = ($request->input('wednesday')==1)? true : false;
-            $template->thursday = ($request->input('thursday')==1)? true : false;
-            $template->friday = ($request->input('friday')==1)? true : false;
-            $template->saturday = ($request->input('saturday')==1)? true : false;
-            $template->sunday = ($request->input('sunday')==1)? true : false;
-            $template->priority = $reservation->priority;
-            $template->from = $reservation->from;
-            $template->to = $reservation->to;
-            $template->start_date = $request->input('start_date');
-            $template->end_date = $request->input('end_date');
+            $template->weekly_frequency = $weekly;
+            $template->monthly_frequency = $monthly;
+            $template->yearly_frequency = $yearly;
+            $template->is_day_based = $datebased;
+            $template->monday = $monday;
+            $template->tueday = $tuesday;
+            $template->wednesday = $wednesday;
+            $template->thursday = $thursday;
+            $template->friday = $friday;
+            $template->saturday = $saturday;
+            $template->sunday = $sunday;
+            $template->priority = $priority;
+            $template->from = $from;
+            $template->to = $to;
+            $template->reason = $request->input('reason');
+            $template->start_date = $request->input('reservation-start-date');
+            $template->end_date = $request->input('reservation-end-date');
+            $template->user()->associate($user);
+            $template->sharedObject()->associate($sharedObject);
+
             $template->save();
-            $reservation->template()->associate($template);
+
+            foreach($template->reservations as $reservation){
+                if($reservation->conflics != null && $reservation->conflicts->count()){
+                    Notification::personalConflictNotifications($user,$reservation);
+                }
+            }
+
+            Notification::templateCreated($user,$template);
+
+        }
+        else {
+            $reservation = new Reservation();
+            $reservation->type = $type;
+            $reservation->priority = $priority;
+            $reservation->manuel = true;
+            $reservation->date = $date;
+            $reservation->from = $from;
+            $reservation->to = $to;
+            $reservation->reason = $request->input('reason');
+            $reservation->deleted = false;
+
+            $reservation->user()->associate($user);
+            $reservation->sharedObject()->associate($sharedObject);
+            $reservation->save();
+
+
+            Notification::personalConflictNotifications($user,$reservation);
+            Notification::reservationCreated($user, $reservation);
         }
 
-        $reservation->save();
-
-        return $reservation;
+        return redirect(url('home'));
     }
 
     /**
@@ -126,8 +244,13 @@ class ReservationController extends Controller
     public function show($id)
     {
         //
+        $user = Auth::user();
         $reservation = Reservation::find($id);
-        return view('reservations.show', compact(['sharedObject']));
+        if($reservation == null || $reservation->delete || $reservation->user->id != $user->id){
+            session()->flash("warning", __('messages.reservation-not-available'));
+            return redirect(route('reservations.index'));
+        }
+        return view('reservations.show', compact(['reservation']));
     }
 
     /**
@@ -140,7 +263,8 @@ class ReservationController extends Controller
     {
         //
         $reservation = Reservation::find($id);
-        return view('reservations.edit', compact(['sharedObject']));
+        $sharedObject = $reservation->sharedObject();
+        return view('reservations.edit', compact(['sharedObject','reservation']));
     }
 
     /**
@@ -154,27 +278,35 @@ class ReservationController extends Controller
     {
         //
         $validatedData = $request->validate([
-            'reservation-type' => 'required|Integer',
             'priority' => 'required|Integer',
+            'reason' => 'string|nullable|min:2|max:250',
             'reservation-date' => 'required|date|after_or_equal:today',
             'reservation-from' => 'required',
             'reservation-to' => 'required',
-            'reason' => 'string|nullable|min:2|max:250'
+        ],[
+            'reservation-date.required' => 'No Date',
+            'reservation-date.date' => 'Not a date',
+            'reservation-date.after_or_equal' => 'Date in the past',
+            'reservation-from.required' => 'From time missing',
+            'reservation-to.required' => 'To time missing'
         ]);
 
         //
-        $user = Auth::user();
         $date  = new Carbon($request->input('reservation-date'));
+        $from = Carbon::createFromTimeString($request->input('reservation-from'));
+        $to = Carbon::createFromTimeString($request->input('reservation-to'));
 
         $reservation = Reservation::find($id);
+        $reservation->reason = $request->input('reason');
         $reservation->priority = Reservation::checkValidPriority($request->input('priority'));
         $reservation->manuel = true;
         $reservation->date = $date;
-        $reservation->from = $request->input('reservation-from');
-        $reservation->to = $request->input('reservation-to');
-        $reservation->reason = $request->input('reason');
-        $reservation->deleted = false;
+        $reservation->from = $from;
+        $reservation->to = $to;
         $reservation->save();
+
+        Notification::personalConflictNotifications(Auth::user(),$reservation);
+        Notification::reservationUpdated(Auth::user(), $reservation);
 
         return $reservation;
     }
@@ -187,14 +319,18 @@ class ReservationController extends Controller
      */
     public function destroy($id)
     {
+        return 'Delete me!';
+        /*
         //
         $reservation = Reservation::find($id);
         if($reservation->type = Reservation::TYPE_REPEATING){
             $reservation->deleted = true;
             $reservation->save();
-        } else {
+        }
+        else {
             $reservation->delete();
         }
         return redirect(route('home'));
+        */
     }
 }

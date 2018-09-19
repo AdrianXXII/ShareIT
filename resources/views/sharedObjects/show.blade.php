@@ -7,7 +7,7 @@
                 <div class="card">
                     <div class="card-header" role="button" data-toggle="collapse" data-target="#collapseSearch" aria-expanded="false" aria-controls="collapseSearch">
                         {{ $sharedObject->designation }}
-                        <a href="{{ route('sharedObjects.edit',['id' => $sharedObject->id]) }}" class="">
+                        <a href="{{ route('sharedObjects.edit',['id' => $sharedObject->id]) }}">
                             <span class="oi oi-pencil"></span>
                         </a>
                     </div>
@@ -65,7 +65,7 @@
                                             {{ $user->username }}
                                         </td>
                                         <td class="text-right">
-                                            <a href="{{ route('sharedObjects.removeUser',['id' => $sharedObject->id, 'userId' => $user->id]) }}" class="btn btn-outline-danger">
+                                            <a href="{{ route('sharedObjects.removeUser',['id' => $sharedObject->id, 'userId' => $user->id]) }}" class="btn btn-outline-danger del-btn">
                                                 <span class="oi oi-trash"></span>
                                             </a>
                                         </td>
@@ -91,12 +91,12 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        @if($sharedObject->reservations->count() > 0)
-                            <div class="card">
-                                <div class="card-header">
-
-                                </div>
-
+                        @if($sharedObject->getRelaventReservations()->count() > 0)
+                            <div class="row justify-content-center">
+                                @foreach($sharedObject->getRelevantReservations() as $res)
+                                    @component('layouts.reservation', [ 'reservation' => $res])
+                                    @endcomponent
+                                @endforeach
                             </div>
                         @else
                             <p class="card-text">

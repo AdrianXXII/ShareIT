@@ -22,7 +22,9 @@
     "dependencies": {
         "and": "0.0.3",
         "install": "^0.12.1",
+        "moment": "^2.22.2",
         "npm": "^6.4.0",
-        "open-iconic": "^1.1.1"
+        "open-iconic": "^1.1.1",
+        "tempusdominus-bootstrap-4": "^5.0.1"
     }
 }

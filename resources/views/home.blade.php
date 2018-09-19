@@ -13,8 +13,17 @@
                             {{ session('status') }}
                         </div>
                     @endif
-
-                    {{__('messages.no-reservation')  }}
+                    @if(Auth::user()->getRelaventReservations()->count() > 0)
+                    <div class="row justify-content-center">
+                        @foreach(Auth::user()->getRelaventReservations() as $res)
+                            @component('layouts.reservation', [ 'reservation' => $res])
+                                <p class="font-weight-bold">{{ $res->sharedObject->designation }}</p>
+                            @endcomponent
+                        @endforeach
+                    </div>
+                    @else
+                        {{__('messages.no-reservation')  }}
+                    @endif
                 </div>
             </div>
         </div>

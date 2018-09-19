@@ -17,7 +17,8 @@ Route::get('/', 'HomeController@index')->name('home');
 
 Route::resources([
     'sharedObjects' => 'SharedObjectController',
-    'reservations' => 'ReservationController'
+    'reservations' => 'ReservationController',
+    'templates' => 'TemplateController'
 ]);
 
 Route::post('/sharedObjects/{id}/addUser', 'SharedObjectController@addUser')->name('sharedObjects.addUser');

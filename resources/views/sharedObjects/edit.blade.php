@@ -12,7 +12,6 @@
 
                         <form method="POST" action="{{ route('sharedObjects.update', ['id' => $sharedObject->id]) }}" aria-label="{{ __('messages.shared-object') }}">
                             @csrf
-
                             @method('PUT')
                             <div class="form-group row">
                                 <label for="designation" class="col-md-4 col-form-label text-md-right">{{ __('messages.designation') }}</label>

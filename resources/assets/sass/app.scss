@@ -8,6 +8,7 @@
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
 @import '~open-iconic/font/css/open-iconic-bootstrap';
+@import "~tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4";
 
 .navbar-laravel {
   background-color: $navi-bg;
@@ -30,4 +31,106 @@
 
 .search-header {
   cursor: pointer;
+}
+
+.invalid-group-feedback {
+  display: block;
+}
+
+.card {
+  &.jan {
+    .card-header {
+      background: #00bfff;
+    }
+    background: #d0ecfd;
+  }
+
+  &.feb {
+    .card-header {
+      background: #87ceeb;
+    }
+    background: #d0ecfd;
+  }
+
+  &.mar {
+    .card-header {
+      background: #4ee44e;
+    }
+    background: #d2f8d2;
+  }
+
+  &.apr {
+    .card-header {
+      background: #1ec71e;
+    }
+    background:#d2f8d2;
+  }
+
+  &.may {
+    .card-header {
+      background: #99e44d;
+    }
+    background: #d2f8d2;
+  }
+
+  &.jun {
+    .card-header {
+      background: #f7ff8f;
+    }
+    background: #f7ffac;
+  }
+
+  &.jul {
+    .card-header {
+      background: #f0ff5f;
+    }
+    background: #f7ffac;
+  }
+
+  &.aug {
+    .card-header {
+      background: #c9de00;
+    }
+    background: #f7ffac;
+  }
+
+  &.sep {
+    background: #00ffa5;
+
+    .card-header {
+      background: #ffd867;
+    }
+
+  }
+
+  &.oct {
+    .card-header {
+      background: #ff7d4d;
+      color: #FFF;
+    }
+    background: #ffe59a;
+
+  }
+
+  &.nov {
+    .card-header {
+      background: #ffbf00;
+    }
+    background: #ffe59a;
+
+  }
+
+  &.dec {
+    .card-header {
+      background: #87cefa;
+    }
+    background: #d0ecfd;
+
+  }
+}
+
+form {
+  &.del-btn {
+    display: inline-flex;
+  }
 }

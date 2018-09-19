@@ -9,7 +9,6 @@
                         __('message.new-shared-object')
                     </div>
                     <div class="card-body">
-
                         <form method="POST" action="{{ route('sharedObjects.store') }}" aria-label="{{ __('messages.shared-object') }}">
                             @csrf
 
