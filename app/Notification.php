@@ -52,7 +52,7 @@ class Notification extends Model
         $notification = new Notification();
         $notification->email = $user->email;
         $notification->subject = __('messages.added-to-shared-object', ['SHARED_OBJECT' => $sharedObject->designation]);
-        $notification->content = __('messages.added-to-shared-object', ['NAME' => $user->name,'SHARED_OBJECT' => $sharedObject->designation, 'USERNAME' => $addedBy->username]);
+        $notification->content = __('messages.added-to-shared-object-content', ['NAME' => $user->getFullname(),'SHARED_OBJECT' => $sharedObject->designation, 'USERNAME' => $addedBy->username]);
         $notification->status = self::STATUS_PENDING;
         $notification->save();
     }
@@ -67,7 +67,7 @@ class Notification extends Model
         $notification = new Notification();
         $notification->email = $user->email;
         $notification->subject = __('messages.remove-to-shared-object', ['SHARED_OBJECT' => $sharedObject->designation]);
-        $notification->content = __('messages.remove-to-shared-object', ['NAME' => $user->name,'SHARED_OBJECT' => $sharedObject->designation, 'USERNAME' => $addedBy->username]);
+        $notification->content = __('messages.remove-to-shared-object-content', ['NAME' => $user->getFullname(),'SHARED_OBJECT' => $sharedObject->designation, 'USERNAME' => $addedBy->username]);
         $notification->status = self::STATUS_PENDING;
         $notification->save();
     }
@@ -425,7 +425,9 @@ class Notification extends Model
                 $content .= __('messages.notification-reservation-create-content', [
                     'CREATOR' => $user->username,
                     'SHARED_OBJECT' => $reservation->sharedObject->designation,
-                    'DATE' => $reservation->getDateStr()
+                    'DATE' => $reservation->getDateStr(),
+                    'FROM' => $reservation->getFromStr(),
+                    'TO' => $reservation->getToStr()
                 ]);
                 $notification = new Notification();
                 $notification->email = $user->email;
@@ -447,7 +449,9 @@ class Notification extends Model
                 $content .= __('messages.notification-reservation-update-content', [
                     'CREATOR' => $user->username,
                     'SHARED_OBJECT' => $reservation->sharedObject->designation,
-                    'DATE' => $reservation->getDateStr()
+                    'DATE' => $reservation->getDateStr(),
+                    'FROM' => $reservation->getFromStr(),
+                    'TO' => $reservation->getToStr()
                 ]);
                 $notification = new Notification();
                 $notification->email = $user->email;

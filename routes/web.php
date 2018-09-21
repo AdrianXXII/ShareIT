@@ -14,6 +14,7 @@
 Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
+Route::get('/mailing', 'HomeController@mailingTest')->name('mailing');
 
 Route::post('/sharedObjects/{id}/addUser', 'SharedObjectController@addUser')->name('sharedObjects.addUser');
 Route::get('/sharedObjects/{id}/removeUser/{userId}', 'SharedObjectController@removeUser')->name('sharedObjects.removeUser');

@@ -321,7 +321,7 @@ class ReservationController extends Controller
         $reservation->to = $to;
         $reservation->save();
 
-        Notification::personalConflictNotifications(Auth::user(),$reservation);
+        Notification::personalConflictNotifications(Auth::user(), $reservation);
         Notification::reservationUpdated(Auth::user(), $reservation);
 
         return redirect(route('reservations.index'));

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Mail\NotificationMail;
 use App\Notification;
 use Carbon\Carbon;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
@@ -42,6 +43,7 @@ class SendNotifications extends Command
     public function handle()
     {
         //
+
             $notifications = Notification::pending();
             foreach($notifications as $notification)
             {
@@ -57,7 +59,7 @@ class SendNotifications extends Command
                     if(count(Mail::failures()) <= 0){
                         $notification->status = Notification::STATUS_SUCCESS;
                     }
-                    elseif($notification->getCreationDate()->diffInDays(Carbon::now) > 7){
+                    elseif($notification->getCreationDate()->diffInDays(Carbon::now()) > 7){
                         $notification->status = Notification::STATUS_GIVEN_UP;
                     }
                     else {
@@ -66,7 +68,7 @@ class SendNotifications extends Command
                     $notification->save();
                 } catch(\ErrorException $e) {
                     $notification->status = Notification::STATUS_FAILED;
-                    if($notification->getCreationDate()->diffInDays(Carbon::now) > 7){
+                    if($notification->getCreationDate()->diffInDays(Carbon::now()) > 7){
                         $notification->status = Notification::STATUS_GIVEN_UP;
                     }
                     else {
@@ -74,6 +76,14 @@ class SendNotifications extends Command
                     }
                     $notification->save();
                 } catch(\Exception $e) {
+                    if($notification->getCreationDate()->diffInDays(Carbon::now()) > 7){
+                        $notification->status = Notification::STATUS_GIVEN_UP;
+                    }
+                    else {
+                        $notification->status = Notification::STATUS_FAILED;
+                    }
+                    $notification->save();
+                } catch(ClientException $e) {
                     if($notification->getCreationDate()->diffInDays(Carbon::now) > 7){
                         $notification->status = Notification::STATUS_GIVEN_UP;
                     }

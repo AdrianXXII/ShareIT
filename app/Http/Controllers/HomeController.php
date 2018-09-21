@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\NotificationMail;
 use App\Notification;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -40,32 +41,27 @@ class HomeController extends Controller
     }
 
     public function mailingTest(){
-        try {
-            $notifications = Notification::pending();
-            foreach($notifications as $notification)
-            {
-                $notification->status = Notification::STATUS_SENDING;
-                $notification->save();
-            }
+        $notifications = Notification::pending();
+        foreach($notifications as $notification)
+        {
+            $notification->status = Notification::STATUS_SENDING;
+            $notification->save();
+        }
 
-            foreach($notifications as $notification)
-            {
+        foreach($notifications as $notification)
+        {
                 Mail::to($notification->email)
                     ->send(new NotificationMail($notification));
                 if(count(Mail::failures()) <= 0){
                     $notification->status = Notification::STATUS_SUCCESS;
                 }
-                elseif($notification->getCreationDate()->diffInDays(Carbon::now) > 7){
+                elseif($notification->getCreationDate()->diffInDays(Carbon::now()) > 7){
                     $notification->status = Notification::STATUS_GIVEN_UP;
                 }
                 else {
                     $notification->status = Notification::STATUS_FAILED;
                 }
                 $notification->save();
-            }
-        } catch(Exception $e) {
-            $notification->status = Notification::STATUS_FAILED;
-            $notification->save();
         }
     }
 }
