@@ -36,7 +36,7 @@ class ReservationController extends Controller
         $toDate = null;
         $sharedObject = null;
         $sharedObjects = $user->sharedObjects;
-        $reservations = $user->reservations()->orderBy('date','asc')->orderBy('from','asc')->orderBy('to','asc')->get();
+        $reservations = $user->reservations()->where('deleted',false)->orderBy('date','asc')->orderBy('from','asc')->orderBy('to','asc')->get();
         $templates = $user->templates()->orderBy('start_date','asc')->orderBy('end_date','asc')->get();
         return view('reservations.index',compact(['reservations','templates','fromDate','toDate','sharedObject','sharedObjects']));
     }
@@ -236,8 +236,7 @@ class ReservationController extends Controller
             Notification::reservationCreated($user, $reservation);
         }
 
-        return '';
-        //return redirect(route('reservations.index'));
+        return redirect(route('reservations.index'));
     }
 
     /**
@@ -341,7 +340,7 @@ class ReservationController extends Controller
             session()->flash("warning", __('messages.reservation-not-available'));
             return redirect(route('reservations.index'));
         }
-        if($reservation->type = Reservation::TYPE_REPEATING){
+        if($reservation->type == Reservation::TYPE_REPEATING){
             $reservation->deleted = true;
             $reservation->save();
         }
