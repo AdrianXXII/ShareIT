@@ -31,7 +31,7 @@
                                 <tr>
                                     <td></td>
                                     <td class="align-middle">
-                                        <a href="{{ route('mySharedObjectExport', ['id' => $sharedObject->id]) }}">
+                                        <a href="{{ route('sharedObjectExport', ['id' => $sharedObject->id]) }}">
                                             <span class="oi oi-data-transfer-download"> {{ __('messages.shared-export') }}</span>
                                         </a>
                                     </td>
