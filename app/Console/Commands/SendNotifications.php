@@ -7,6 +7,7 @@ use App\Notification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use PHPUnit\Runner\Exception;
 
 class SendNotifications extends Command
 {
@@ -42,25 +43,31 @@ class SendNotifications extends Command
     public function handle()
     {
         //
-        $notifications = Notification::pending();
-        foreach($notifications as $notification)
-        {
-            $notification->status = Notification::STATUS_SENDING;
-            $notification->save();
-        }
+        try {
+            $notifications = Notification::pending();
+            foreach($notifications as $notification)
+            {
+                $notification->status = Notification::STATUS_SENDING;
+                $notification->save();
+            }
 
-        foreach($notifications as $notification)
-        {
-            Mail::to($notification->email)->send(new NotificationMail($notification));
-            if(count(Mail::failures()) <= 0){
-                $notification->status = Notification::STATUS_SUCCESS;
+            foreach($notifications as $notification)
+            {
+                Mail::to($notification->email)
+                    ->send(new NotificationMail($notification));
+                if(count(Mail::failures()) <= 0){
+                    $notification->status = Notification::STATUS_SUCCESS;
+                }
+                elseif($notification->getCreationDate()->diffInDays(Carbon::now) > 7){
+                    $notification->status = Notification::STATUS_GIVEN_UP;
+                }
+                else {
+                    $notification->status = Notification::STATUS_FAILED;
+                }
+                $notification->save();
             }
-            elseif($notification->getCreationDate()->diffInDays(Carbon::now) > 7){
-                $notification->status = Notification::STATUS_GIVEN_UP;
-            }
-            else {
-                $notification->status = Notification::STATUS_FAILED;
-            }
+        } catch(Exception $e) {
+            $notification->status = Notification::STATUS_FAILED;
             $notification->save();
         }
     }

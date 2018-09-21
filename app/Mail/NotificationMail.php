@@ -33,6 +33,8 @@ class NotificationMail extends Mailable
     public function build()
     {
         $content = $this->content;
-        return $this->view('emails.basic', compact('content'));
+        return $this
+            ->from('no-reply@locad.ch')
+            ->view('emails.basic', compact('content'));
     }
 }
