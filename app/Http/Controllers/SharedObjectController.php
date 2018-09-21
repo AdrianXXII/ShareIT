@@ -231,7 +231,7 @@ class SharedObjectController extends Controller
             return redirect(route('home'));
         }
 
-        $reservations = $sharedObject->getReleventReservations();
+        $reservations = $sharedObject->getRelaventReservations();
         return response()
             ->view('ical.events',compact('reservations'))
             ->header('Content-Type', 'text/calendar');
