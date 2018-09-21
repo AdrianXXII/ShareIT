@@ -38,7 +38,7 @@ class Notification extends Model
      */
     public static function pending()
     {
-        return self::where('status',self::STATUS_PENDING)->get();
+        return self::where('status',self::STATUS_PENDING)->orWhere('status', self::STATUS_FAILED)->get();
     }
 
     // Static Functions

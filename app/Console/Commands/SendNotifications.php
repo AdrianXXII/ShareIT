@@ -48,7 +48,9 @@ class SendNotifications extends Command
             $notification->status = Notification::STATUS_SENDING;
             $notification->save();
         }
-        foreach($notifications as $notification) {
+
+        foreach($notifications as $notification)
+        {
             Mail::to($notification->email)->send(new NotificationMail($notification));
             if(count(Mail::failures()) <= 0){
                 $notification->status = Notification::STATUS_SUCCESS;
