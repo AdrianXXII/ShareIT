@@ -6,7 +6,9 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        {{ __('messages.edit-shared-object') }}
+                        <h4 class="card-title align-middle">
+                            {{ __('messages.edit-shared-object') }}
+                        </h4>
                     </div>
                     <div class="card-body">
 

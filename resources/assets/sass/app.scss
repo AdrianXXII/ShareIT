@@ -131,6 +131,10 @@
 
 form {
   &.del-btn {
-    display: inline-flex;
+    display: inline;
   }
+}
+
+h4.card-title {
+  margin-bottom: 0px;
 }

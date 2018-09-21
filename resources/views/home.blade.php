@@ -5,7 +5,20 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">Today's reservations</div>
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <h4 class="card-title">
+                                {{ __('messages.my-upcoming') }}
+                            </h4>
+                        </div>
+                        <div class="col-md-2 align-middle text-right">
+                            <a href="{{ route('myexport') }}">
+                                <span class="oi oi-data-transfer-download"></span> Export
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="card-body">
                     @if (session('status'))

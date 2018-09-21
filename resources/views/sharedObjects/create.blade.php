@@ -6,7 +6,10 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        __('message.new-shared-object')
+                        <h4 class="card-title align-middle">
+                            {{ __('message.new-shared-object') }}
+                        </h4>
+
                     </div>
                     <div class="card-body">
                         <form method="POST" action="{{ route('sharedObjects.store') }}" aria-label="{{ __('messages.shared-object') }}">

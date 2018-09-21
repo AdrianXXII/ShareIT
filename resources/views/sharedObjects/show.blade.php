@@ -6,10 +6,13 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header" role="button" data-toggle="collapse" data-target="#collapseSearch" aria-expanded="false" aria-controls="collapseSearch">
-                        {{ $sharedObject->designation }}
-                        <a href="{{ route('sharedObjects.edit',['id' => $sharedObject->id]) }}">
-                            <span class="oi oi-pencil"></span>
-                        </a>
+                        <h4 class="align-middle card-title">
+                            {{ $sharedObject->designation }}
+                            <a href="{{ route('sharedObjects.edit',['id' => $sharedObject->id]) }}" class="btn btn-outline-primary">
+                                <span class="oi oi-pencil"></span>
+                            </a>
+                        </h4>
+
                     </div>
                     <div class="card-body">
                         <p class="card-text">
@@ -24,6 +27,22 @@
                                 <tr>
                                     <td><b>{{ __('messages.updated') }}</b></td>
                                     <td>{{ __('messages.updated-text', ['UPDATED_AT'  => $sharedObject->updatedAt(), 'UPDATED_BY' => $sharedObject->updatedBy->username]) }}</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td class="align-middle">
+                                        <a href="{{ route('mySharedObjectExport', ['id' => $sharedObject->id]) }}">
+                                            <span class="oi oi-data-transfer-download"> {{ __('messages.shared-export') }}</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td class="align-middle">
+                                        <a href="{{ route('mySharedObjectExport', ['id' => $sharedObject->id]) }}">
+                                            <span class="oi oi-data-transfer-download"> {{ __('messages.my-export') }}</span>
+                                        </a>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -93,7 +112,7 @@
                     <div class="card-body">
                         @if($sharedObject->getRelaventReservations()->count() > 0)
                             <div class="row justify-content-center">
-                                @foreach($sharedObject->getRelevantReservations() as $res)
+                                @foreach($sharedObject->getRelaventReservations() as $res)
                                     @component('layouts.reservation', [ 'reservation' => $res])
                                     @endcomponent
                                 @endforeach

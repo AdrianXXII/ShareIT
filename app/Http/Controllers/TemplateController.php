@@ -211,6 +211,12 @@ class TemplateController extends Controller
         }
 
         $template = ReservationTemplate::find($id);
+
+        if($template == null || $template->user->id != Auth::id()){
+            session()->flash("warning", __('messages.reservation-not-available'));
+            return redirect(route('reservations.index'));
+        }
+
         $template->date = $date->day;
         $template->month = $date->month;
         $template->weekly_frequency = $weekly;
@@ -254,7 +260,13 @@ class TemplateController extends Controller
 
         //
         $reservation = ReservationTemplate::find($id);
+
+        if($reservation == null || $reservation->user->id != Auth::id()){
+            session()->flash("warning", __('messages.reservation-not-available'));
+            return redirect(route('reservations.index'));
+        }
+
         $reservation->delete();
-        return redirect(route('home'));
+        return redirect(route('reservations.index'));
     }
 }

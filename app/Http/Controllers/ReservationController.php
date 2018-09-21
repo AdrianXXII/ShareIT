@@ -32,9 +32,13 @@ class ReservationController extends Controller
     {
         //
         $user = Auth::user();
-        $reservations = $user->reservations()->orderBy('date','desc')->orderBy('from','desc')->orderBy('to','desc')->get();
-        $templates = $user->templates()->orderBy('start_date','desc')->orderBy('end_date','desc')->get();
-        return view('reservations.index',compact(['reservations','templates']));
+        $fromDate = null;
+        $toDate = null;
+        $sharedObject = null;
+        $sharedObjects = $user->sharedObjects;
+        $reservations = $user->reservations()->orderBy('date','asc')->orderBy('from','asc')->orderBy('to','asc')->get();
+        $templates = $user->templates()->orderBy('start_date','asc')->orderBy('end_date','asc')->get();
+        return view('reservations.index',compact(['reservations','templates','fromDate','toDate','sharedObject','sharedObjects']));
     }
 
     /**
@@ -232,7 +236,7 @@ class ReservationController extends Controller
             Notification::reservationCreated($user, $reservation);
         }
 
-        return redirect(url('home'));
+        return redirect(url('reservations.index'));
     }
 
     /**
@@ -263,6 +267,12 @@ class ReservationController extends Controller
     {
         //
         $reservation = Reservation::find($id);
+
+        if($reservation == null || $reservation->delete || $reservation->user->id != Auth::id()){
+            session()->flash("warning", __('messages.reservation-not-available'));
+            return redirect(route('reservations.index'));
+        }
+
         $sharedObject = $reservation->sharedObject();
         return view('reservations.edit', compact(['sharedObject','reservation']));
     }
@@ -280,7 +290,7 @@ class ReservationController extends Controller
         $validatedData = $request->validate([
             'priority' => 'required|Integer',
             'reason' => 'string|nullable|min:2|max:250',
-            'reservation-date' => 'required|date|after_or_equal:today',
+            'reservation-date' => 'required|date',
             'reservation-from' => 'required',
             'reservation-to' => 'required',
         ],[
@@ -297,6 +307,12 @@ class ReservationController extends Controller
         $to = Carbon::createFromTimeString($request->input('reservation-to'));
 
         $reservation = Reservation::find($id);
+
+        if($reservation == null || $reservation->delete || $reservation->user->id != Auth::id()){
+            session()->flash("warning", __('messages.reservation-not-available'));
+            return redirect(route('reservations.index'));
+        }
+
         $reservation->reason = $request->input('reason');
         $reservation->priority = Reservation::checkValidPriority($request->input('priority'));
         $reservation->manuel = true;
@@ -308,7 +324,7 @@ class ReservationController extends Controller
         Notification::personalConflictNotifications(Auth::user(),$reservation);
         Notification::reservationUpdated(Auth::user(), $reservation);
 
-        return $reservation;
+        return redirect(route('reservations.index'));
     }
 
     /**
@@ -319,10 +335,11 @@ class ReservationController extends Controller
      */
     public function destroy($id)
     {
-        return 'Delete me!';
-        /*
-        //
         $reservation = Reservation::find($id);
+        if($reservation == null || $reservation->delete || $reservation->user->id != Auth::id()){
+            session()->flash("warning", __('messages.reservation-not-available'));
+            return redirect(route('reservations.index'));
+        }
         if($reservation->type = Reservation::TYPE_REPEATING){
             $reservation->deleted = true;
             $reservation->save();
@@ -331,6 +348,50 @@ class ReservationController extends Controller
             $reservation->delete();
         }
         return redirect(route('home'));
-        */
+    }
+
+    public function search(Request $request)
+    {
+        $user = Auth::user();
+        $fromDate = $request->get('fromDate');
+        $toDate = $request->get('toDate');
+        $sharedObject = $request->get('sharedObject');
+
+        $queryRes = $user->reservations();
+        $queryTem = $user->templates();
+        if(isset($sharedObject)){
+            $queryRes = $queryRes->where('shared_object_id', $sharedObject);
+            $queryTem = $queryTem->where('shared_object_id', $sharedObject);
+        }
+        if(isset($fromDate) && isset($toDate)) {
+            $queryRes = $queryRes->whereRaw('date between ? AND ?',
+                [$fromDate, $toDate]
+            );
+            $queryTem = $queryTem->whereRaw('(? between `start_date` AND `end_date` OR ? between `start_date` AND `end_date` OR `start_date` between ? AND ? OR `end_date` between ? AND ?)',
+                [$fromDate, $toDate, $fromDate, $toDate, $fromDate, $toDate]
+            );
+        }
+        elseif(isset($fromDate)) {
+            $queryRes = $queryRes->where('date','>=',$fromDate);
+            $queryTem = $queryTem->whereraw('(start_date >= ? OR end_date >= ?)',
+                [$fromDate, $fromDate]);
+        }
+        elseif(isset($toDate)) {
+            $queryRes = $queryRes->where('date', '<=', $toDate);
+            $queryTem = $queryTem->whereraw('(start_date <= ? OR end_date <= ?)',
+                [$toDate, $toDate]);
+
+        }
+
+        $reservations = $queryRes->orderBy('date','asc')
+            ->orderBy('from','asc')
+            ->orderBy('to','asc')
+            ->get();
+        $templates = $queryTem->orderBy('start_date','asc')
+            ->orderBy('end_date','desc')
+            ->get();
+        $sharedObjects = $user->sharedObjects;
+        // return [$user,$fromDate,  $toDate, $sharedObject, $sharedObjects];
+        return view('reservations.index',compact(['reservations', 'templates', 'fromDate', 'toDate', 'sharedObject', 'sharedObjects']));
     }
 }

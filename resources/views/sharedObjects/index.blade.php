@@ -8,7 +8,7 @@
                     <table class="table table-striped">
                         <thead>
                         <tr>
-                            <th scope="col" class="align-middle">{{ __('messages.shared-object') }}</th>
+                            <th scope="col" class="align-middle"><h4 class="card-title">{{ __('messages.shared-object') }}</h4></th>
                             <th scope="col" class="text-right">
                                 <a href="{{ route('sharedObjects.create') }}" class="btn btn-outline-success glyphicon-new-window">{{ __('messages.new-object') }}</a>
                             </th>

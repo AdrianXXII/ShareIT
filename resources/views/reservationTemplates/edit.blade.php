@@ -6,9 +6,9 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        @if(isset($sharedObject))
+                        <h4 class="align-middle card-title">
                             {{ __('messages.reservation-for', ['SHARED_OBJECT' => $template->sharedObject->designation]) }}
-                        @endif
+                        </h4>
                     </div>
                     <div class="card-body">
                         <form action="{{ route('templates.update', ['id' => $template->id]) }}" method="POST" aria-label="{{ __('messages.reservation') }}" class="edit-recurring">

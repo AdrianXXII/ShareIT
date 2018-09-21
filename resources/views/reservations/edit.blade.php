@@ -6,7 +6,9 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        {{ __('messages.reservation-for', ['SHARED_OBJECT' => $reservation->sharedObject->designation]) }}
+                        <h4 class="card-title align-middle">
+                            {{ __('messages.reservation-for', ['SHARED_OBJECT' => $reservation->sharedObject->designation]) }}
+                        </h4>
                     </div>
                     <div class="card-body">
                         <form action="{{ route('reservations.update', ['id' => $reservation->id]) }}" method="POST" aria-label="{{ __('messages.reservation') }}">

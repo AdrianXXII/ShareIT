@@ -11,10 +11,35 @@
                     </div>
                     <div class="collapse" id="collapseSearch">
                         <div class="card-body">
-                            <form action="" class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="Object" aria-label="Shared Object" aria-describedby="button-find">
-                                <div class="input-group-append">
-                                    <button class="btn btn-toolbar" type="button" id="button-find">{{ __('messages.find') }}</button>
+                            <form action="{{ route('reservations.search') }}" class="input-group mb-3">
+                                <label for="fromDate" class="col-form-label">{{ __('messages.from') }}</label>
+                                <div class="input-group date" id="fromDate" data-target-input="nearest">
+                                    <input type="text" name="fromDate" class="form-control datetimepicker-input" data-target="#fromDate" value="{{ old('fromDate', $fromDate) }}">
+                                    <div class="input-group-append" data-target="#fromDate" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="oi oi-calendar"></i></div>
+                                    </div>
+                                </div>
+                                <label for="toDate" class="col-form-label">{{ __('messages.to') }}</label>
+                                <div class="input-group date" id="toDate" data-target-input="nearest">
+                                    <input type="text" name="toDate" class="form-control datetimepicker-input" data-target="#toDate" value="{{ old('toDate', $toDate) }}">
+                                    <div class="input-group-append" data-target="#toDate" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="oi oi-calendar"></i></div>
+                                    </div>
+                                </div>
+                                <label for="shared_object_id" class="col-form-label">{{ __('messages.shared-object') }}</label>
+
+                                <div class="input-group mb-1">
+                                    <select class="form-control" name="shared_object_id" id="shared_object_id">
+                                        <option value=""></option>
+                                        @foreach($sharedObjects as $object)
+                                            <option value="{{ $object->id }}" {{ $object == old('sharedObject',$sharedObject)?'SELECTED':'' }}>{{ $object->designation }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <button class="btn btn-toolbar" type="submit" id="button-find">
+                                        {{ __('messages.find') }}
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -28,7 +53,9 @@
             <div class="col-md-8  mb-3">
                 <div class="card">
                     <div class="card-header">
-                        {{ __('messages.reservation-template') }}
+                        <h4 class="card-title">
+                            {{ __('messages.reservation-template') }}
+                        </h4>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped">
@@ -43,14 +70,19 @@
                             <tbody>
                                 @foreach($templates as $template)
                                     <tr>
-                                        <td>{{ $template->sharedObject->designation }}</td>
+                                        <td>
+                                            {{ $template->sharedObject->designation }}
+                                            @if(strlen($template->reason) >= 1)
+                                                <br><span class="font-italic">{{ $template->reason }}</span>
+                                            @endif
+                                        </td>
                                         <td>{{ $template->getStartDateStr() }}</td>
                                         <td>{{ $template->getEndDateStr() }}</td>
                                         <td>
-                                            <a href="{{ route('templates.show',['id' => $template->id]) }}" class="btn btn-outline-success">
+                                            <a href="{{ route('templates.show',['id' => $template->id]) }}" class="btn btn-outline-primary">
                                                 <span class="oi oi-eye"></span>
                                             </a>
-                                            <a href="{{ route('templates.edit',['id' => $template->id]) }}" class="btn btn-outline-success">
+                                            <a href="{{ route('templates.edit',['id' => $template->id]) }}" class="btn btn-outline-primary">
                                                 <span class="oi oi-pencil"></span>
                                             </a>
                                             <form action="{{ route('templates.destroy',['id' => $template->id]) }}" method="POST" class="del-btn">
@@ -72,7 +104,9 @@
             <div class="col-md-8 mb-3">
                 <div class="card">
                     <div class="card-header">
-                        {{ __('messages.reservation') }}
+                        <h4 class="card-title">
+                            {{ __('messages.reservation') }}
+                        </h4>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped">
@@ -88,18 +122,24 @@
                             <tbody>
                                 @foreach($reservations  as $reservation)
                                     <tr>
-                                        <td>{{ $reservation->sharedObject->designation }}</td>
+                                        <td>
+                                            {{ $reservation->sharedObject->designation }}
+                                            @if(strlen($reservation->reason) >= 1)
+                                                <br><span class="font-italic">{{ $reservation->reason }}</span>
+                                            @endif
+                                        </td>
                                         <td>{{ $reservation->getDateStr() }}</td>
                                         <td>{{ $reservation->getFromStr() }}</td>
                                         <td>{{ $reservation->getToStr() }}</td>
                                         <td>
-                                            <a href="{{ route('reservations.show', ['id' => $reservation->id]) }}" class="btn btn-outline-success">
+                                            <a href="{{ route('reservations.show', ['id' => $reservation->id]) }}" class="btn btn-outline-primary">
                                                 <span class="oi oi-eye"></span>
                                             </a>
-                                            <a href="{{ route('reservations.edit', ['id' => $reservation->id]) }}" class="btn btn-outline-success">
+                                            <a href="{{ route('reservations.edit', ['id' => $reservation->id]) }}" class="btn btn-outline-primary">
                                                 <span class="oi oi-pencil"></span>
                                             </a>
                                             <form class="del-btn" action="{{ route('reservations.destroy', ['id' => $reservation->id]) }}" method="POST">
+                                                @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-outline-danger">
                                                     <span class="oi oi-trash"></span>

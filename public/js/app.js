@@ -30312,13 +30312,11 @@ var app = new Vue({
 
 $(function () {
     $('form.del-btn').submit(function (e) {
-        e.preventDefault();
         rtn = confirm('Are you sure you want to delete this?');
         return rtn;
     });
 
     $('a.del-btn').click(function (e) {
-        e.preventDefault();
         rtn = confirm('Are you sure you want to delete this?');
         return rtn;
     });
@@ -30347,6 +30345,11 @@ $(function () {
     });
 
     $('#reservation-end-date').datetimepicker({
+        format: 'YYYY-MM-DD',
+        icons: shareIt.icons
+    });
+
+    $('#fromDate, #toDate').datetimepicker({
         format: 'YYYY-MM-DD',
         icons: shareIt.icons
     });

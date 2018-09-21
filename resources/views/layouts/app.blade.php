@@ -49,6 +49,9 @@
                             </li>
                         @else
                             <li class="nav-item">
+                                <a href="{{ route('home') }}" class="nav-link">{{ __('messages.home') }}</a>
+                            </li>
+                            <li class="nav-item">
                                 <a href="{{ route('sharedObjects.index') }}" class="nav-link">{{ __('messages.shared-objects') }}</a>
                             </li>
                             <li class="nav-item">

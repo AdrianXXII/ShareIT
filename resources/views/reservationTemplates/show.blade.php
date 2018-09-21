@@ -6,10 +6,12 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        {{ __('messages.reservation-template') }}
-                        <a href="{{ route('templates.edit',['id' => $template->id]) }}">
-                            <span class="oi oi-pencil"></span>
-                        </a>
+                        <h4 class="card-title align-middle">
+                            {{ __('messages.reservation-template') }}
+                            <a href="{{ route('templates.edit',['id' => $template->id]) }}" class="btn btn-outline-primary">
+                                <span class="oi oi-pencil"></span>
+                            </a>
+                        </h4>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped">

@@ -6,11 +6,13 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        @if(isset($sharedObject))
-                            {{ __('messages.new-reservation-for', ['SHARED_OBJECT' => $sharedObject->designation]) }}
-                        @else
-                            {{ __('messages.new-reservation') }}
-                        @endif
+                        <h4 class="card-tiitle align-middle">
+                            @if(isset($sharedObject))
+                                {{ __('messages.new-reservation-for', ['SHARED_OBJECT' => $sharedObject->designation]) }}
+                            @else
+                                {{ __('messages.new-reservation') }}
+                            @endif
+                        </h4>
                     </div>
                     <div class="card-body">
                         <form action="{{ route('reservations.store') }}" method="POST" aria-label="{{ __('messages.reservation') }}">

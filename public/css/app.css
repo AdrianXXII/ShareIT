@@ -11893,8 +11893,10 @@ a.text-dark:focus {
 }
 
 form.del-btn {
-  display: -webkit-inline-box;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
+  display: inline;
+}
+
+h4.card-title {
+  margin-bottom: 0px;
 }
 

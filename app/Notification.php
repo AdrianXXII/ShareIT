@@ -24,15 +24,30 @@ class Notification extends Model
      */
     protected $fillable = ['email','subject','content','status',];
 
-
+    /**
+     * Returns the Creation date as a Carbon object
+     * @return Carbon
+     */
     public function getCreationDate(){
         return new Carbon($this->created);
     }
+
+    /**
+     * Returns pending Notifications
+     * @return mixed
+     */
     public static function pending()
     {
         return self::where('status',self::STATUS_PENDING)->get();
     }
 
+    // Static Functions
+    /**
+     * Creates notification to inform User that an Object has been shared with them.
+     * @param User $user
+     * @param User $addedBy
+     * @param $sharedObject
+     */
     public static function shareWithUserNotification(User $user, User $addedBy, $sharedObject){
         $notification = new Notification();
         $notification->email = $user->email;
@@ -42,6 +57,12 @@ class Notification extends Model
         $notification->save();
     }
 
+    /**
+     * Creates notification to inform User that they've been removed
+     * @param User $user        The user being added
+     * @param User $addedBy     The user that removed them
+     * @param $sharedObject     The sharedObject that's being shared with the user
+     */
     public static function removeUserFromSharedObjectNotification(User $user, User $addedBy, $sharedObject){
         $notification = new Notification();
         $notification->email = $user->email;
@@ -51,6 +72,11 @@ class Notification extends Model
         $notification->save();
     }
 
+    /**
+     * Creates a notification to inform the user of all the conflicting reservations with their own Reservations
+     * @param User $user
+     * @param Reservation $reservation
+     */
     public static function personalConflictNotifications(User $user, Reservation $reservation){
         $conflicts = $reservation->conflicts();
         if( $conflicts->count() <= 0) {
@@ -59,14 +85,14 @@ class Notification extends Model
         $conflicts->sortby('from');
         $affectedUsers = new Collection();
         $content = _('message.conflicting-reservations-personal-content');
-        $content += __('message.conflicting-personal-reservations-content2', [
+        $content .= __('message.conflicting-personal-reservations-content2', [
             'SHARED_OBJECT' => $reservation->sharedObject->designation
         ]);
         foreach($conflicts as $conflict){
             if(!$affectedUsers->contains($conflict->user)){
                 $affectedUsers->add($user);
             }
-            $content += __(
+            $content .= __(
                 'messages.conflicting-reservations-content3', [
                     'USERNAME' => $conflict->user->username,
                     'FROM' => $conflict->getFromStr(),
@@ -87,6 +113,12 @@ class Notification extends Model
 
     }
 
+    /**
+     * @param User $reserver
+     * @param Collection $users
+     * @param Reservation $reservation
+     * @param $conflicts
+     */
     public static function conflictNotifications(User $reserver, Collection $users, Reservation $reservation, $conflicts){
         foreach($users as $user){
             $content = __('messages.conflicting-reservations-recipient-content',[
@@ -96,7 +128,7 @@ class Notification extends Model
                 ]);
             foreach($conflicts as $conflict){
                 if($conflict->user == $user){
-                    $content += __('messages.conflicting-reservations-recipient-content2',[
+                    $content .= __('messages.conflicting-reservations-recipient-content2',[
                         'FROM' => $conflict->getFromStr(),
                         'TO' => $conflict->getToStr()
                     ]);
@@ -127,7 +159,7 @@ class Notification extends Model
                 continue;
             }
             $conflicts->sortBy('from');
-            $content += __('messages.conflicting-reservations-template-personal-content2',[
+            $content .= __('messages.conflicting-reservations-template-personal-content2',[
                 'DATE' => $reservation->getDateStr(),
                 'FROM' => $reservation->getFromStr(),
                 'TO' => $reservation->getToStr(),
@@ -138,14 +170,14 @@ class Notification extends Model
                     $affectedUsers->add($conflict->user);
                 }
 
-                $content += __('messages.conflicting-reservations-template-personal-content2',[
+                $content .= __('messages.conflicting-reservations-template-personal-content2',[
                     'USERNAME' => $conflict->user->username,
                     'DATE' => $conflict->date,
                     'FROM' => $conflict->getFromStr(),
                     'TO' => $conflict->getToStr(),
                 ]);
             }
-            $content += _('messages.conflicting-reservations-new-line');
+            $content .= _('messages.conflicting-reservations-new-line');
         }
 
         $notification = new Notification();
@@ -160,7 +192,7 @@ class Notification extends Model
         $userContent = array();
         foreach($template->reservations as $reservation){
             foreach($reservation->conflicts() as $conflict){
-                $userContent[$conflict->user->username] += __('messages.conflicting-reservations-template-recipient-content2', [
+                $userContent[$conflict->user->username] .= __('messages.conflicting-reservations-template-recipient-content2', [
                     'DATE' => $conflict->getDateStr(),
                     'FROM' => $conflict->getFromStr(),
                     'FROM2' => $reservation->getFromStr(),
@@ -174,7 +206,7 @@ class Notification extends Model
                 'USERNAME' => $user->username
             ]);
 
-            $content += $userContent[$user->username];
+            $content .= $userContent[$user->username];
 
             $notification = new Notification();
             $notification->email = $user->email;
@@ -199,7 +231,7 @@ class Notification extends Model
                 $days[] = __('messages.tuesday');
             }
             if ($template->wednesday) {
-                $days += __('messages.wednesday');
+                $days[] = __('messages.wednesday');
             }
             if ($template->thursday) {
                 $days[] = __('messages.thursday');
@@ -215,24 +247,24 @@ class Notification extends Model
             }
             foreach ($days as $i => $day) {
                 if ($i > 1 && count($days)) {
-                    $daysOfTheWeek += ', ';
+                    $daysOfTheWeek .= ', ';
 
                 } elseif ($i == count($days) - 1) {
-                    $daysOfTheWeek += ' & ';
+                    $daysOfTheWeek .= ' & ';
                 }
-                $daysOfTheWeek += $day;
+                $daysOfTheWeek .= $day;
             }
         }
 
         if($template->yearly_frequency){
             $frequency = __('messages.yearly');
             if($template->is_day_based){
-                $frequency += __('messages.frequency-date-yearly-msg',[
+                $frequency .= __('messages.frequency-date-yearly-msg',[
                     'DAY' => $template->date,
                     'MONTH' => $template->month
                 ]);
             } else {
-                $frequency += __('messages.frequency-days-yearly-msg', [
+                $frequency .= __('messages.frequency-days-yearly-msg', [
                     'DAY' => $template->date,
                     'MONTH' => $template->month,
                     'DAYS' => $daysOfTheWeek
@@ -242,15 +274,12 @@ class Notification extends Model
         elseif($template->monthly_frequency) {
             $frequency = __('messages.monthly');
             if($template->is_day_based){
-                /*
-                 * TODO
-                $frequency += __('messages.frequency-date-yearly-msg', [
+                $frequency .= __('messages.frequency-date-yearly-msg', [
                     'DAY' => $template->date,
                     'MONTH' => $template->month
                 ]);
-                */
             } else {
-                $frequency += __('messages.frequency-days-yearly-msg',[
+                $frequency .= __('messages.frequency-days-yearly-msg',[
                     'DAY' => $template->date,
                     'DAYS' => $daysOfTheWeek
                 ]);
@@ -260,28 +289,21 @@ class Notification extends Model
             $frequency = __('messages.frequency-days-daily-msg',[
                 'DAYS' => $daysOfTheWeek
             ]);
-        }
-        /*
-         * TODO
-        $frequency += __('messages.frequency-start-end-msg',[
+        }$frequency .= __('messages.frequency-start-end-msg',[
             'FROM'=>$template->getFromStr(),
             'TO'=>$template->getToStr(),
             'START'=>$template->getStartDateStr(),
             'END'=>$template->getEndDateStr()
         ]);
-*/
 
         foreach($template->sharedObject->users as $rec){
             if($rec->id != $user->id){
                 $content = __('messages.notification-greeting',['USERNAME' => $rec->getFullname()]);
-                /*
-                * TODO
-                $content += __('messages.notification-template-create-content', [
+                $content .= __('messages.notification-template-create-content', [
                     'CREATOR' => $user->username,
                     'SHARED_OBJECT' => $template->sharedObject->designation,
                     'FREQUENCY' => $frequency
                 ]);
-                */
                 $notification = new Notification();
                 $notification->email = $user->email;
                 $notification->subject = __('messages.notification-template-create-subject',[
@@ -307,7 +329,7 @@ class Notification extends Model
                 $days[] = __('messages.tuesday');
             }
             if ($template->wednesday) {
-                $days += __('messages.wednesday');
+                $days[] = __('messages.wednesday');
             }
             if ($template->thursday) {
                 $days[] = __('messages.thursday');
@@ -323,24 +345,24 @@ class Notification extends Model
             }
             foreach ($days as $i => $day) {
                 if ($i > 1 && count($days)) {
-                    $daysOfTheWeek += ', ';
+                    $daysOfTheWeek .= ', ';
 
                 } elseif ($i == count($days) - 1) {
-                    $daysOfTheWeek += ' & ';
+                    $daysOfTheWeek .= ' & ';
                 }
-                $daysOfTheWeek += $day;
+                $daysOfTheWeek .= $day;
             }
         }
 
         if($template->yearly_frequency){
             $frequency = __('messages.yearly');
             if($template->is_day_based){
-                $frequency += __('messages.frequency-date-yearly-msg',[
+                $frequency .= __('messages.frequency-date-yearly-msg',[
                     'DAY'=>$template->date,
                     'MONTH'=>$template->month
                 ]);
             } else {
-                $frequency += __('messages.frequency-days-yearly-msg', [
+                $frequency .= __('messages.frequency-days-yearly-msg', [
                     'DAY'=>$template->date,
                     'MONTH'=>$template->month,
                     'DAYS'=>$daysOfTheWeek
@@ -350,12 +372,12 @@ class Notification extends Model
         elseif($template->monthly_frequency) {
             $frequency = __('messages.monthly');
             if($template->is_day_based){
-                $frequency += __('messages.frequency-date-yearly-msg',[
+                $frequency .= __('messages.frequency-date-yearly-msg',[
                     'DAY'=>$template->date,
                     'MONTH'=>$template->month
                 ]);
             } else {
-                $frequency += __('messages.frequency-days-yearly-msg',[
+                $frequency .= __('messages.frequency-days-yearly-msg',[
                     'DAY'=>$template->date,
                     'DAYS'=>$daysOfTheWeek
                 ]);
@@ -367,7 +389,7 @@ class Notification extends Model
             ]);
         }
 
-        $frequency += __('messages.frequency-start-end-msg',[
+        $frequency .= __('messages.frequency-start-end-msg',[
             'FROM'=>$template->getFromStr(),
             'TO'=>$template->getToStr(),
             'START'=>$template->getStartDateStr(),
@@ -378,7 +400,7 @@ class Notification extends Model
         foreach($template->sharedObject->users as $rec){
             if($rec->id != $user->id){
                 $content = __('messages.notification-greeting',['USERNAME' => $rec->getFullname()]);
-                $content += __('messages.notification-template-update-content', [
+                $content .= __('messages.notification-template-update-content', [
                     'CREATOR' => $user->username,
                     'SHARED_OBJECT' => $template->sharedObject->designation,
                     'FREQUENCY' => $frequency
@@ -400,7 +422,7 @@ class Notification extends Model
         foreach($reservation->sharedObject->users as $rec){
             if($rec->id != $user->id){
                 $content = __('messages.notification-greeting',['USERNAME' => $rec->getFullname()]);
-                $content += __('messages.notification-reservation-create-content', [
+                $content .= __('messages.notification-reservation-create-content', [
                     'CREATOR' => $user->username,
                     'SHARED_OBJECT' => $reservation->sharedObject->designation,
                     'DATE' => $reservation->getDateStr()
@@ -422,14 +444,11 @@ class Notification extends Model
         foreach($reservation->sharedObject->users as $rec){
             if($rec->id != $user->id){
                 $content = __('messages.notification-greeting',['USERNAME' => $rec->getFullname()]);
-                /*
-                 * TODO
-                $content += __('messages.notification-reservation-update-content', [
+                $content .= __('messages.notification-reservation-update-content', [
                     'CREATOR' => $user->username,
                     'SHARED_OBJECT' => $reservation->sharedObject->designation,
                     'DATE' => $reservation->getDateStr()
                 ]);
-                */
                 $notification = new Notification();
                 $notification->email = $user->email;
                 $notification->subject = __('messages.notification-reservation-update-subject',[

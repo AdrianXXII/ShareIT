@@ -7,7 +7,7 @@
                 <div class="card">
                     <div class="card-header">
                         {{ __('messages.reservation') }}
-                        <a href="{{ route('reservations.edit',['id' => $reservation->id]) }}">
+                        <a href="{{ route('reservations.edit',['id' => $reservation->id]) }}" class="btn btn-outline-primary">
                             <span class="oi oi-pencil"></span>
                         </a>
                     </div>

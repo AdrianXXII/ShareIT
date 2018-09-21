@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Notification;
+use App\Reservation;
 use App\SharedObject;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SharedObjectController extends Controller
 {
@@ -86,6 +88,12 @@ class SharedObjectController extends Controller
     {
         //
         $sharedObject = SharedObject::find($id);
+
+        if($sharedObject == null || !$sharedObject->hasUser(Auth::user())){
+            session()->flash('warning',__('messages.invalid-action'));
+            return redirect(route('home'));
+        }
+
         $users = User::all();
         return view('sharedObjects.show', compact(['sharedObject','users']));
     }
@@ -100,6 +108,12 @@ class SharedObjectController extends Controller
     {
         //
         $sharedObject = SharedObject::find($id);
+
+        if($sharedObject == null || !$sharedObject->hasUser(Auth::user())){
+            session()->flash('warning',__('messages.invalid-action'));
+            return redirect(route('home'));
+        }
+
         return view('sharedObjects.edit', compact('sharedObject'));
     }
 
@@ -122,6 +136,10 @@ class SharedObjectController extends Controller
         $user = \Auth::user();
 
         $sharedObject = SharedObject::find($id);
+        if($sharedObject == null || !$sharedObject->users()->contains($user)){
+            session()->flash('warning',__('messages.invalid-action'));
+            return redirect(route('home'));
+        }
 
         if($sharedObject->hasUser($user)) {
             $sharedObject->designation = $request->get('designation');
@@ -158,16 +176,6 @@ class SharedObjectController extends Controller
         //
     }
 
-    /**
-     * Search for a specific Shared Object
-     *
-     * @param $term
-     */
-    public function search($term)
-    {
-
-    }
-
     public function addUser(Request $request, $id){
         $user = \Auth::user();
         $newUser = User::find($request->get('new-user'));
@@ -200,5 +208,32 @@ class SharedObjectController extends Controller
         $users = User::all();
         return redirect(route('sharedObjects.show',['id' => $id]));
 
+    }
+
+    public function myExport($id)
+    {
+        $user = Auth::user();
+        $reservations = Reservation::where('shared_object_id',$id)
+            ->where('user_id',$user->id)
+            ->where('deleted',false)
+            ->orderBy('date','asc')->get();
+        return response()
+            ->view('ical.events',compact('reservations'))
+            ->header('Content-Type', 'text/calendar');
+    }
+
+    public function objectExport($id)
+    {
+        $sharedObject = SharedObject::find($id);
+
+        if($sharedObject == null || !$sharedObject->hasUser(Auth::user())){
+            session()->flash('warning',__('messages.invalid-action'));
+            return redirect(route('home'));
+        }
+
+        $reservations = $sharedObject->getReleventReservations();
+        return response()
+            ->view('ical.events',compact('reservations'))
+            ->header('Content-Type', 'text/calendar');
     }
 }

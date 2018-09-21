@@ -84,7 +84,7 @@ return [
     'reservation' => 'Reservation',
     'reservations' => 'Reservations',
     'reservation-template' => 'Recurring reservation',
-    'reservation-not-available' => 'The reservation is not available for you.',
+    'reservation-not-available' => 'The reservation is not available to you.',
     'reservation-from-to' => 'Reservation on :DATE from :FROM to :TO',
     'reservation-by' => 'by :USERNAME',
     'reservation-for' => 'Reservation for :SHARED_OBJECT',
@@ -116,4 +116,12 @@ return [
     'yearly' => 'Yearly',
     'yes' => 'Yes',
     'no' => 'No',
+    'home' => 'Home',
+    'export' => 'Export',
+    'my-export' => 'My reservations export',
+    'shared-export' => 'Shared Object reservations export',
+    'event-summary-1' => ':USERNAME reserved :SHARED_OBJECT',
+    'event-summary-2' => ' | reason: :REASON',
+    'my-upcoming' => 'My upcoming reservations',
+    'invalid-action' => 'You tried to do the impossible'
 ];

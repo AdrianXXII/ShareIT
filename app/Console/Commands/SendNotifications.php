@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\NotificationMail;
 use App\Notification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 
 class SendNotifications extends Command
 {
@@ -47,10 +49,11 @@ class SendNotifications extends Command
             $notification->save();
         }
         foreach($notifications as $notification) {
-            if(true){
+            Mail::to($notification->email)->send(new NotificationMail($notification));
+            if(count(Mail::failures()) <= 0){
                 $notification->status = Notification::STATUS_SUCCESS;
             }
-            elseif($notification->getCreationDate()->diffInDays(Carbon::now) > 30){
+            elseif($notification->getCreationDate()->diffInDays(Carbon::now) > 7){
                 $notification->status = Notification::STATUS_GIVEN_UP;
             }
             else {
