@@ -214,6 +214,7 @@ class ReservationController extends Controller
             }
 
             Notification::templateCreated($user,$template);
+            Notification::templatePersonalConflictNotification($user,$template);
 
         }
         else {

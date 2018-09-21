@@ -84,8 +84,8 @@ class Notification extends Model
         }
         $conflicts->sortby('from');
         $affectedUsers = new Collection();
-        $content = _('message.conflicting-reservations-personal-content');
-        $content .= __('message.conflicting-personal-reservations-content2', [
+        $content = __('messages.conflicting-reservations-personal-content1');
+        $content .= __('messages.conflicting-reservations-personal-content2', [
             'SHARED_OBJECT' => $reservation->sharedObject->designation
         ]);
         foreach($conflicts as $conflict){
@@ -93,7 +93,7 @@ class Notification extends Model
                 $affectedUsers->add($user);
             }
             $content .= __(
-                'messages.conflicting-reservations-content3', [
+                'messages.conflicting-reservations-personal-content3', [
                     'USERNAME' => $conflict->user->username,
                     'FROM' => $conflict->getFromStr(),
                     'TO' => $conflict->getToStr(),
@@ -104,7 +104,7 @@ class Notification extends Model
 
         $notification = new Notification();
         $notification->email = $user->email;
-        $notification->subject = __('message.conflicting-reservations-personal-subject');
+        $notification->subject = __('messages.conflicting-reservations-personal-subject');
         $notification->content = $content;
         $notification->status = self::STATUS_PENDING;
         $notification->save();
@@ -121,8 +121,11 @@ class Notification extends Model
      */
     public static function conflictNotifications(User $reserver, Collection $users, Reservation $reservation, $conflicts){
         foreach($users as $user){
+            $count = 0;
             $content = __('messages.conflicting-reservations-recipient-content',[
                     'USERNAME' => $reserver->username,
+                    'DATE' => $reservation->getDateStr(),
+                    'SHARED_OBJECT' => $reservation->sharedObject->designation,
                     'FROM' => $reservation->getFromStr(),
                     'TO' => $reservation->getToStr(),
                 ]);
@@ -133,6 +136,11 @@ class Notification extends Model
                         'TO' => $conflict->getToStr()
                     ]);
                 }
+                $count++;
+            }
+
+            if($count > 0){
+                return;
             }
 
             $notification = new Notification();
@@ -149,13 +157,13 @@ class Notification extends Model
     }
 
     public static function templatePersonalConflictNotification(User $user, ReservationTemplate $template){
-        $content = __('messages.conflicting-reservations-template-personal-content',[
+        $content = __('messages.conflicting-reservations-template-personal-content1',[
             'SHARED_OBJECT' => $template->sharedObject->designation
         ]);
         $affectedUsers = new Collection();
         foreach($template->reservations as $reservation){
             $conflicts = $reservation->conflicts();
-            if($content->count() <= 0){
+            if($conflicts->count() <= 0){
                 continue;
             }
             $conflicts->sortBy('from');
@@ -170,14 +178,14 @@ class Notification extends Model
                     $affectedUsers->add($conflict->user);
                 }
 
-                $content .= __('messages.conflicting-reservations-template-personal-content2',[
+                $content .= __('messages.conflicting-reservations-template-personal-content3',[
                     'USERNAME' => $conflict->user->username,
-                    'DATE' => $conflict->date,
+                    'DATE' => $conflict->getDateStr(),
                     'FROM' => $conflict->getFromStr(),
                     'TO' => $conflict->getToStr(),
                 ]);
             }
-            $content .= _('messages.conflicting-reservations-new-line');
+            $content .= __('messages.conflicting-reservations-new-line');
         }
 
         $notification = new Notification();
@@ -202,7 +210,7 @@ class Notification extends Model
             }
         }
         foreach($users as $user){
-            $content = __('messages.conflicting-reservations-template-recipient-content',[
+            $content = __('messages.conflicting-reservations-template-recipient-content1',[
                 'USERNAME' => $user->username
             ]);
 

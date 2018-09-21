@@ -61,34 +61,34 @@
                             </tbody>
                         </table>
                     </div>
-                    @if($reservation->conflicts()->count() > 0)
-                        <div class="card">
-                            <div class="card-header">
-                                {{ _('messages.conflicts') }}
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-striped">
-                                    <thead>
-                                    <tr>
-                                        <th>{{ __('messages.user') }}</th>
-                                        <th>{{ __('messages.priority')  }}</th>
-                                        <th>{{ __('messages.period')  }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach($reservation->conflicts as $conflict)
-                                        <tr>
-                                            <td>{{ $conflict->username }}</td>
-                                            <td>{{ $conflict->priority }}</td>
-                                            <td>{{ __('messages.date-from-to', ['DATE' => $conflict->getDateStr(), 'FROM' => $conflict->getFromStr(), 'TO' => $conflict->getToStr()]) }}</td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    @endif
                 </div>
+                @if($reservation->conflicts()->count() > 0)
+                    <div class="card mt-2">
+                        <div class="card-header">
+                            {{ __('messages.conflicts') }}
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th>{{ __('messages.user') }}</th>
+                                    <th>{{ __('messages.priority')  }}</th>
+                                    <th>{{ __('messages.period')  }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($reservation->conflicts() as $conflict)
+                                    <tr>
+                                        <td>{{ $conflict->user->username }}</td>
+                                        <td>{{ $conflict->getPriority() }}</td>
+                                        <td>{{ __('messages.date-from-to', ['DATE' => $conflict->getDateStr(), 'FROM' => $conflict->getFromStr(), 'TO' => $conflict->getToStr()]) }}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

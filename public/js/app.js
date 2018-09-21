@@ -30330,8 +30330,8 @@ $(function () {
     });
 
     $('.create-reservations').ready(function (e) {
-        repeatableReservation();
         adjustDateBased();
+        repeatableReservation();
     });
 
     $('#reservation-date').datetimepicker({
