@@ -236,7 +236,8 @@ class ReservationController extends Controller
             Notification::reservationCreated($user, $reservation);
         }
 
-        return redirect(url('reservations.index'));
+        return '';
+        //return redirect(route('reservations.index'));
     }
 
     /**
@@ -347,7 +348,7 @@ class ReservationController extends Controller
         else {
             $reservation->delete();
         }
-        return redirect(route('home'));
+        return redirect(route('reservations.index'));
     }
 
     public function search(Request $request)

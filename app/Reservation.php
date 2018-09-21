@@ -108,8 +108,8 @@ class Reservation extends Model
      */
     public function conflicts(){
         $conflicts = new Collection();
-        $conflicts->merge($this->conflictingLeft);
-        $conflicts->merge($this->conflictingRight);
+        $conflicts = $conflicts->merge($this->conflictingLeft);
+        $conflicts = $conflicts->merge($this->conflictingRight);
         return $conflicts;
     }
 
@@ -144,6 +144,7 @@ class Reservation extends Model
         $this->conflictingRight()->detach();
         parent::save($options);
         $this->setConflicts();
+        parent::save($options);
     }
 
     /**
@@ -151,15 +152,20 @@ class Reservation extends Model
      */
     public function setConflicts()
     {
-        $conflicts = Reservation::where('id','!=',$this->id)
-            ->where('shared_object_id',$this->sharedObject->id)
-            ->where('deleted',false)->where('date',$this->date)
-            ->whereRaw('(? between `from` AND `to` OR ? between `from` AND `to` OR `from` between ? AND ? OR `to` between ? AND ?)',
-            [$this->from,$this->to,$this->from,$this->to,$this->from,$this->to])
+        $to = $this->getTo()->format('H:i:s');
+        $from = $this->getTo()->format('H:i:s');
+        $conflicts = Reservation::where('id','<>',$this->id)
+            ->where('shared_object_id','=',$this->sharedObject->id)
+            ->where('deleted',false)
+            ->whereDate('date','=',$this->date)
+            ->whereRaw(
+                '(? between `from` AND `to` OR ? between `from` AND `to` OR `from` between ? AND ? OR `to` between ? AND ?)',
+            [$from, $to, $from, $to, $from, $to])
             ->get();
         if($conflicts->count() >= 1){
-            $this->conflictingLeft()->detach($conflicts);
+            $this->conflictingLeft()->attach($conflicts);
         }
+        echo $conflicts;
     }
 
     /**
@@ -205,7 +211,7 @@ class Reservation extends Model
      */
     public function getToStr(){
         $toTime = $this->getTo();
-        return (isset($toTime)) ? $toTime->format('H:m') : '';
+        return (isset($toTime)) ? $toTime->format('H:i') : '';
     }
 
     /**
@@ -229,7 +235,7 @@ class Reservation extends Model
     public function getFromStr()
     {
         $fromTime = $this->getFrom();
-        return (isset($fromTime)) ? $fromTime->format('H:m') : '';
+        return (isset($fromTime)) ? $fromTime->format('H:i') : '';
     }
 
     /**
@@ -253,13 +259,13 @@ class Reservation extends Model
             case self::PRIORITY_FLEXIBLE:
                 return __('messages.flexible');
                 break;
-            case self::PRIORITY_FLEXIBLE:
-                return __('messages.heigh');
+            case self::PRIORITY_HIGH:
+                return __('messages.high');
                 break;
-            case self::PRIORITY_FLEXIBLE:
+            case self::PRIORITY_MIDDLE:
                 return __('messages.middle');
                 break;
-            case self::PRIORITY_FLEXIBLE:
+            case self::PRIORITY_LOW:
                 return __('messages.low');
                 break;
             default:
@@ -277,7 +283,7 @@ class Reservation extends Model
         $toTime = $this->getTo();
         $date = $this->getDate();
         $date->setTime($toTime->hour,$toTime->minute);
-        return $date->format('Ymd') . "T" . $date->format('Hms') . "Z";
+        return $date->format('Ymd') . "T" . $date->format('His') . "Z";
     }
 
 
@@ -290,7 +296,7 @@ class Reservation extends Model
         $fromTime = $this->getFrom();
         $date = $this->getDate();
         $date->setTime($fromTime->hour, $fromTime->minute);
-        return $date->format('Ymd') . "T" . $date->format('Hms') . "Z";
+        return $date->format('Ymd') . "T" . $date->format('His') . "Z";
     }
 
     /**

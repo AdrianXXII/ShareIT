@@ -75,7 +75,7 @@ class SharedObject extends Model
      * @return string
      */
     public function createdAt(){
-        return (new Carbon($this->created_at))->format('l, F jS Y - H:i:s');
+        return (new Carbon($this->created_at))->format('l, F jS Y - H:i');
     }
 
     /**
@@ -83,7 +83,7 @@ class SharedObject extends Model
      * @return string
      */
     public function updatedAt(){
-        return (new Carbon($this->created_at))->format('l, F jS Y - H:i:s');
+        return (new Carbon($this->created_at))->format('l, F jS Y - H:i');
     }
 
     /**

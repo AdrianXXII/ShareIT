@@ -811,7 +811,7 @@ class ReservationTemplate extends Model
      */
     public function getToStr(){
         $toTime = $this->getTo();
-        return (isset($toTime)) ? $toTime->format('H:m') : '';
+        return (isset($toTime)) ? $toTime->format('H:i') : '';
     }
 
     /**
@@ -832,7 +832,7 @@ class ReservationTemplate extends Model
      */
     public function getFromStr(){
         $fromTime = $this->getFrom();
-        return (isset($fromTime)) ? $fromTime->format('H:m') : '';
+        return (isset($fromTime)) ? $fromTime->format('H:i') : '';
     }
 
     /**
@@ -899,13 +899,13 @@ class ReservationTemplate extends Model
             case Reservation::PRIORITY_FLEXIBLE:
                 return __('messages.flexible');
                 break;
-            case Reservation::PRIORITY_FLEXIBLE:
-                return __('messages.heigh');
+            case Reservation::PRIORITY_HIGH:
+                return __('messages.high');
                 break;
-            case Reservation::PRIORITY_FLEXIBLE:
+            case Reservation::PRIORITY_MIDDLE:
                 return __('messages.middle');
                 break;
-            case Reservation::PRIORITY_FLEXIBLE:
+            case Reservation::PRIORITY_LOW:
                 return __('messages.low');
                 break;
             default:

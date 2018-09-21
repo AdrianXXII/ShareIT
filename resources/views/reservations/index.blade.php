@@ -128,7 +128,15 @@
                                                 <br><span class="font-italic">{{ $reservation->reason }}</span>
                                             @endif
                                         </td>
-                                        <td>{{ $reservation->getDateStr() }}</td>
+                                        <td>
+                                            {{ $reservation->getDateStr() }}
+
+                                            @if ($reservation->conflicts()->count() > 0)
+                                                <div class="alert alert-warning text-center" role="alert">
+                                                    {{ __('messages.in-conflict') }}
+                                                </div>
+                                            @endif
+                                        </td>
                                         <td>{{ $reservation->getFromStr() }}</td>
                                         <td>{{ $reservation->getToStr() }}</td>
                                         <td>

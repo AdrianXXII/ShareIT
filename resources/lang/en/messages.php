@@ -123,5 +123,7 @@ return [
     'event-summary-1' => ':USERNAME reserved :SHARED_OBJECT',
     'event-summary-2' => ' | reason: :REASON',
     'my-upcoming' => 'My upcoming reservations',
-    'invalid-action' => 'You tried to do the impossible'
+    'invalid-action' => 'You tried to do the impossible',
+    'conflicted' => 'This reservation is in conflict with another',
+    'in-conflict' => 'Is in conflict with another'
 ];
