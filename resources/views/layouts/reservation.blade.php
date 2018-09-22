@@ -27,6 +27,9 @@
 
             @if(auth::user()->id == $reservation->user->id)
                 <div class="text-right">
+                    <a href="{{ route('reservations.show', ['id' => $reservation->id]) }}" class="btn btn-outline-primary">
+                        <span class="oi oi-eye"></span>
+                    </a>
                     <a href="{{ route('reservations.edit', ['id'=> $reservation->id] ) }}" class="btn btn-outline-primary">
                         <span class="oi oi-pencil"></span>
                     </a>

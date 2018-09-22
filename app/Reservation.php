@@ -153,13 +153,16 @@ class Reservation extends Model
     public function setConflicts()
     {
         $to = $this->getTo()->format('H:i:s');
-        $from = $this->getTo()->format('H:i:s');
+        $from = $this->getfrom()->format('H:i:s');
         $conflicts = Reservation::where('id','<>',$this->id)
             ->where('shared_object_id','=',$this->sharedObject->id)
             ->where('deleted',false)
             ->whereDate('date','=',$this->date)
             ->whereRaw(
-                '(? between `from` AND `to` OR ? between `from` AND `to` OR `from` between ? AND ? OR `to` between ? AND ?)',
+                '(? between `from` AND `to` ' .
+                'OR ? between `from` AND `to` ' .
+                'OR `from` between ? AND ? '.
+                'OR `to` between ? AND ?)',
             [$from, $to, $from, $to, $from, $to])
             ->get();
         if($conflicts->count() >= 1){

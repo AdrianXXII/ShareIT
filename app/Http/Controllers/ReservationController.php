@@ -343,6 +343,8 @@ class ReservationController extends Controller
         }
         if($reservation->type == Reservation::TYPE_REPEATING){
             $reservation->deleted = true;
+            $reservation->conflictingRight()->detach();
+            $reservation->conflictingLeft()->detach();
             $reservation->save();
         }
         else {

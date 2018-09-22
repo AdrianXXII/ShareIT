@@ -136,7 +136,7 @@ class SharedObjectController extends Controller
         $user = \Auth::user();
 
         $sharedObject = SharedObject::find($id);
-        if($sharedObject == null || !$sharedObject->users()->contains($user)){
+        if($sharedObject == null || !$sharedObject->users->contains($user)){
             session()->flash('warning',__('messages.invalid-action'));
             return redirect(route('home'));
         }

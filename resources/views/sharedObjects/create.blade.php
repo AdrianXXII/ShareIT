@@ -7,7 +7,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title align-middle">
-                            {{ __('message.new-shared-object') }}
+                            {{ __('messages.new-shared-object') }}
                         </h4>
 
                     </div>
