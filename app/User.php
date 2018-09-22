@@ -96,7 +96,10 @@ class User extends Authenticatable
     public function getRelaventReservations(){
         return $this->reservations()
             ->where('deleted',false)
-            ->where('date','>=',new Carbon())
-            ->orderBy('date','asc')->get();
+            ->whereDate('date','>=',Carbon::today())
+            ->orderBy('date','asc')
+            ->orderBy('from','asc')
+            ->orderBy('to','asc')
+            ->get();
     }
 }

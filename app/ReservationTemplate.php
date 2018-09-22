@@ -928,6 +928,12 @@ class ReservationTemplate extends Model
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getRelaventReservations(){
-        return $this->reservations()->where('deleted',false)->orderBy('date','asc')->get();
+        return $this->reservations()
+            ->where('deleted',false)
+            ->whereDate('date','>=',Carbon::today())
+            ->orderBy('date','asc')
+            ->orderBy('from','asc')
+            ->orderBy('to','asc')
+            ->get();
     }
 }

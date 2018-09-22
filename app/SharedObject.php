@@ -117,6 +117,11 @@ class SharedObject extends Model
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getRelaventReservations(){
-        return $this->reservations()->where('date','>=',new Carbon())->where('deleted',false)->orderBy('date','asc')->get();
+        return $this->reservations()
+            ->whereDate('date','>=',Carbon::today())
+            ->orderBy('date','asc')
+            ->orderBy('from','asc')
+            ->orderBy('to','asc')
+            ->get();
     }
 }

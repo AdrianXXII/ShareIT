@@ -30346,7 +30346,8 @@ $(function () {
 
     $('#reservation-end-date').datetimepicker({
         format: 'YYYY-MM-DD',
-        icons: shareIt.icons
+        icons: shareIt.icons,
+        useCurrent: false
     });
 
     $('#fromDate, #toDate').datetimepicker({
@@ -30361,12 +30362,14 @@ $(function () {
 
     $('#reservation-to').datetimepicker({
         format: 'HH:mm',
-        icons: shareIt.icons
+        icons: shareIt.icons,
+        useCurrent: false
     });
 
     $("#reservation-from").on("change.datetimepicker", function (e) {
         $('#reservation-to').datetimepicker('minDate', e.date);
     });
+
     $("#reservation-to").on("change.datetimepicker", function (e) {
         $('#reservation-from').datetimepicker('maxDate', e.date);
     });
