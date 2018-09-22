@@ -56,6 +56,10 @@
                                 <button type="submit" class="btn btn-primary">
                                     {{ __('Login') }}
                                 </button>
+                                {{ __('messages.or') }}
+                                <a href="{{ route('register') }}">
+                                    {{ __('Register') }}
+                                </a>
                                 <!--
                                 <a class="btn btn-link" href="{{ route('password.request') }}">
                                     {{ __('Forgot Your Password?') }}

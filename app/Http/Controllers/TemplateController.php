@@ -127,8 +127,8 @@ class TemplateController extends Controller
                 Rule::in($frequencies)
             ],
             'reservation-days' => 'required_if:reservation-is-date-based,false',
-            'reservation-start-date' => 'required_if:reservation-type,2|nullable|date',
-            'reservation-end-date' => 'required_if:reservation-type,2|nullable|date',
+            'reservation-start-date' => 'required|nullable|date',
+            'reservation-end-date' => 'required|nullable|date',
         ],
         [
             'reservation-date.date' => 'Not a date',

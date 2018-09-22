@@ -920,7 +920,10 @@ class ReservationTemplate extends Model
      */
     public function getFirstDate(){
         $first = $this->reservations()->where('deleted',false)->orderBy('date','asc')->first();
-        return $first->getDateStr();
+        if(isset($first)){
+            return $first->getDateStr();
+        }
+        return $this->getStartDateStr();
     }
 
     /**

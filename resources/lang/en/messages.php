@@ -116,6 +116,7 @@ return [
     'yearly' => "Yearly",
     'yes' => "Yes",
     'no' => "No",
+    'or' => "Or",
     'home' => "Home",
     'export' => "Export",
     'my-export' => "My reservations export",
